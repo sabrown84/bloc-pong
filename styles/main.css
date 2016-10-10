@@ -4,7 +4,7 @@ h1 {
     font-family: 'Source Sans Pro';
 }
 
-#pong {
-    background-color: orange;
+canvas {
+    border: 2px solid navy;
     margin-left: 2.5em
 }
