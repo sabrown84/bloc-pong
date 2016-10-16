@@ -20,6 +20,7 @@ var step = function() {
 
 var update = function() {
     player.update();
+    ball.update(player.paddle, computer.paddle);
 };
 
 var render = function() {
@@ -41,11 +42,11 @@ Paddle.prototype.render = function () {
     context.fillRect(this.x, this.y, this.width, this.height);
 };
 
-function Player() {
+function Computer() {
     this.paddle = new Paddle(10, 175, 10, 50);
 }
 
-function Computer() {
+function Player() {
     this.paddle = new Paddle(580, 175, 10, 50);
 }
 
@@ -60,8 +61,8 @@ Computer.prototype.render = function() {
 function Ball(x, y) {
     this.x = x; 
     this.y = y;
-    this.x_speed = 0;
-    this.y_speed = 3;
+    this.x_speed = 3;
+    this.y_speed = 0;
     this.radius = 5;
 }
 
@@ -116,7 +117,44 @@ Paddle.prototype.move = function(x, y) {
         this.y = 0;
         this.y_speed = 0;
     } else if (this.y + this.height > 400) {
-        this.y = 400 -this.height;
+        this.y = 400 - this.height;
         this.y_speed = 0;
     }
-}
+};
+
+Ball.prototype.update = function(paddle1, paddle2) {
+    this.x += this.x_speed;
+    this.y += this.y_speed;
+    var top_x = this.x - 5;
+    var top_y = this.y - 5;
+    var bottom_x = this.x + 5;
+    var bottom_y = this.y + 5;
+    
+    if(this.y + 5 < 0) {
+        this.y = 5;
+        this.y_speed = - this.y_speed;
+    } else if(this.y - 5 > 400) {
+        this.y = 395;
+        this.y_speed = - this.y_speed;
+    }
+    
+    if(this.x < 0 || this.x > 600) {
+        this.x_speed = 3;
+        this.y_speed = 0;
+        this.x = 300;
+        this.y = 200;
+    }
+    
+    if(top_x > 300) {
+        if(top_x < (paddle1.x + paddle1.width) && bottom_x > paddle1.x && top_y < (paddle1.y + paddle1.height) && bottom_y > paddle1.y) {
+            this.x_speed = - 3;
+            this.y_speed += (paddle1.y_speed / 2);
+            this.x += this.x_speed;
+        }
+    } else {
+        if(top_x < (paddle2.width) && bottom_x > paddle2.x && top_y < (paddle2.y + paddle2.height) && bottom_y > paddle2.y) {
+            this.x_speed = 3;
+            this.y_speed += (paddle2.y_speed / 2);
+        }
+    }
+};
