@@ -20,6 +20,7 @@ var step = function() {
 
 var update = function() {
     player.update();
+    computer.update(ball);
     ball.update(player.paddle, computer.paddle);
 };
 
@@ -130,10 +131,10 @@ Ball.prototype.update = function(paddle1, paddle2) {
     var bottom_x = this.x + 5;
     var bottom_y = this.y + 5;
     
-    if(this.y + 5 < 0) {
+    if(this.y - 5 < 0) {
         this.y = 5;
         this.y_speed = - this.y_speed;
-    } else if(this.y - 5 > 400) {
+    } else if(this.y + 5 > 400) {
         this.y = 395;
         this.y_speed = - this.y_speed;
     }
@@ -152,9 +153,25 @@ Ball.prototype.update = function(paddle1, paddle2) {
             this.x += this.x_speed;
         }
     } else {
-        if(top_x < (paddle2.width) && bottom_x > paddle2.x && top_y < (paddle2.y + paddle2.height) && bottom_y > paddle2.y) {
+        if(top_x < (paddle2.x + paddle2.width) && bottom_x > paddle2.x && top_y < (paddle2.y + paddle2.height) && bottom_y > paddle2.y) {
             this.x_speed = 3;
-            this.y_speed += (paddle2.y_speed / 2);
+            this.y_speed += this.x_speed;
         }
+    }
+};
+
+Computer.prototype.update = function(ball) {
+    var y_pos = ball.y;
+    var diff = -((this.paddle.y + (this.paddle.height / 2)) - y_pos);
+    if(diff < 0 && diff < -4) {
+        diff = -5;
+    } else if(diff > 0 && diff > 4) {
+        diff = 5;
+    }
+    this.paddle.move(0, diff);
+    if(this.paddle.y < 0) {
+        this.paddle.y = 0;
+    } else if(this.paddle.y + this.paddle.height > 400) {
+        this.paddle.y = 400 - this.paddle.height;
     }
 };
