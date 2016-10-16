@@ -21,12 +21,25 @@ var step = function() {
 var update = function() {
     player.update();
     computer.update(ball);
-    ball.update(player.paddle, computer.paddle);
+    ball.update(player.paddle, computer.paddle, scorePlayer, scoreComputer);
+    scorePlayer.update();
+    scoreComputer.update();
 };
+
+var player = new Player();
+var computer = new Computer();
+var ball = new Ball(300, 200);
+var scorePlayer = new ScorePlayer();
+var scoreComputer = new ScoreComputer();
 
 var render = function() {
     context.fillStyle = 'orange';
     context.fillRect(0, 0, width, height);
+    player.render();
+    computer.render();
+    ball.render();
+    scorePlayer.render();
+    scoreComputer.render();
 };
 
 function Paddle( x, y, width, height) {
@@ -74,18 +87,6 @@ Ball.prototype.render = function () {
     context.fill();
 };
 
-var player = new Player();
-var computer = new Computer();
-var ball = new Ball(300, 200);
-
-var render = function() {
-    context.fillStyle = 'yellow';
-    context.fillRect(0, 0, width, height);
-    player.render();
-    computer.render();
-    ball.render();
-};
-
 var keysDown = {};
 
 window.addEventListener("keydown", function(event) {
@@ -109,6 +110,22 @@ Player.prototype.update = function() {
     }
 };
 
+Computer.prototype.update = function(ball) {
+    var y_pos = ball.y;
+    var diff = -((this.paddle.y + (this.paddle.height / 2)) - y_pos);
+    if(diff < 0 && diff < -4) {
+        diff = -5;
+    } else if(diff > 0 && diff > 4) {
+        diff = 5;
+    }
+    this.paddle.move(0, diff);
+    if(this.paddle.y < 0) {
+        this.paddle.y = 0;
+    } else if(this.paddle.y + this.paddle.height > 400) {
+        this.paddle.y = 400 - this.paddle.height;
+    }
+};
+
 Paddle.prototype.move = function(x, y) {
     this.x += x;
     this.y += y;
@@ -123,7 +140,7 @@ Paddle.prototype.move = function(x, y) {
     }
 };
 
-Ball.prototype.update = function(paddle1, paddle2) {
+Ball.prototype.update = function(paddle1, paddle2, score) {
     this.x += this.x_speed;
     this.y += this.y_speed;
     var top_x = this.x - 5;
@@ -142,8 +159,17 @@ Ball.prototype.update = function(paddle1, paddle2) {
     if(this.x < 0 || this.x > 600) {
         this.x_speed = 3;
         this.y_speed = 0;
+        if (this.x < 0) {
+            scorePlayer.incrementPlayerScore();
+        }
+        
+        if(this.x > 600) {
+            scoreComputer.incrementComputerScore();
+        }
+        
         this.x = 300;
         this.y = 200;
+        
     }
     
     if(top_x > 300) {
@@ -160,18 +186,44 @@ Ball.prototype.update = function(paddle1, paddle2) {
     }
 };
 
-Computer.prototype.update = function(ball) {
-    var y_pos = ball.y;
-    var diff = -((this.paddle.y + (this.paddle.height / 2)) - y_pos);
-    if(diff < 0 && diff < -4) {
-        diff = -5;
-    } else if(diff > 0 && diff > 4) {
-        diff = 5;
+function ScorePlayer() {
+    this.playerScore = 0;
+}
+
+function ScoreComputer() {
+    this.computerScore = 0;
+}
+
+ScorePlayer.prototype.update = function() {
+    if(this.playerScore === 10) {
+        alert("Success!");
+        location.reload();
     }
-    this.paddle.move(0, diff);
-    if(this.paddle.y < 0) {
-        this.paddle.y = 0;
-    } else if(this.paddle.y + this.paddle.height > 400) {
-        this.paddle.y = 400 - this.paddle.height;
+}
+
+ScoreComputer.prototype.update = function() {
+    if(this.computerScore === 10) {
+        alert("Computer's Success!");
+        location.reload();
     }
-};
+}
+
+ScorePlayer.prototype.incrementPlayerScore = function() {
+    this.playerScore++;
+}
+
+ScoreComputer.prototype.incrementComputerScore = function() {
+    this.computerScore++;
+}
+
+ScorePlayer.prototype.render = function() {
+    context.font = "25px Open Sans";
+    context.fillStyle = 'black';
+    context.fillText(this.playerScore, 500, 30);
+}
+
+ScoreComputer.prototype.render = function () {
+    context.font = "25px Open Sans";
+    context.fillStyle = 'black';
+    context.fillText(this.computerScore, 100, 30);
+}
