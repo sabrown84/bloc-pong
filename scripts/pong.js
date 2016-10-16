@@ -1,4 +1,4 @@
-var animate = window.requestAnimateFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function(callback) { window.setTimeout(callback, 1000/60) };
+var animate = window.requestAnimateFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) { window.setTimeout(callback, 1000/60) };
 
 var canvas = document.createElement('canvas');
 var width = 600;
@@ -19,6 +19,7 @@ var step = function() {
 };
 
 var update = function() {
+    player.update();
 };
 
 var render = function() {
@@ -52,6 +53,10 @@ Player.prototype.render = function() {
     this.paddle.render();
 };
 
+Computer.prototype.render = function() {
+    this.paddle.render();
+};
+
 function Ball(x, y) {
     this.x = x; 
     this.y = y;
@@ -78,3 +83,40 @@ var render = function() {
     computer.render();
     ball.render();
 };
+
+var keysDown = {};
+
+window.addEventListener("keydown", function(event) {
+    keysDown[event.keyCode] = true;
+});
+
+window.addEventListener("keyup", function(event) {
+    delete keysDown[event.keyCode];
+});
+
+Player.prototype.update = function() {
+    for(var key in keysDown) {
+        var value = Number(key);
+        if(value == 38) {
+            this.paddle.move(0, -4);
+        } else if (value == 40) {
+            this.paddle.move(0, 4);
+        } else {
+            this.paddle.move(0, 0);
+        }
+    }
+};
+
+Paddle.prototype.move = function(x, y) {
+    this.x += x;
+    this.y += y;
+    this.x_speed = x;
+    this.y_speed = y;
+    if(this.y < 0) {
+        this.y = 0;
+        this.y_speed = 0;
+    } else if (this.y + this.height > 400) {
+        this.y = 400 -this.height;
+        this.y_speed = 0;
+    }
+}
