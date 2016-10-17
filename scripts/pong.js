@@ -195,15 +195,15 @@ function ScoreComputer() {
 }
 
 ScorePlayer.prototype.update = function() {
-    if(this.playerScore === 10) {
-        alert("Success!");
+    if(this.playerScore === 6) {
+        alert("Game Over, You've succeeded!");
         location.reload();
     }
 }
 
 ScoreComputer.prototype.update = function() {
-    if(this.computerScore === 10) {
-        alert("Computer's Success!");
+    if(this.computerScore === 6) {
+        alert("Game Over, Computer's Success!");
         location.reload();
     }
 }
